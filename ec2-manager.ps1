@@ -1,4 +1,14 @@
 #installa moduli necessari
+
+if (Get-Module -ListAvailable -Name PSWriteColor) {
+    #Write-Host "Module PSWriteColor exists"
+} 
+else {
+    Write-Host "Module PSWriteColor does not exist"
+    Install-Module -Force -Scope CurrentUser PSWriteColor
+    Write-Host "Module PSWriteColor installed"
+}
+
 if (Get-Module -ListAvailable -Name PsIni) {
     #Write-Host "Module PsIni exists"
 } 
@@ -20,6 +30,7 @@ else {
 #Importo i moduli necessari
 Import-Module -Name AWSPowerShell
 Import-Module -Name PsIni
+Import-Module -Name PSWriteColor
 
 #leggo le informazioni dal file config.ini
 $config = Get-IniContent .\config.ini
@@ -161,117 +172,115 @@ function info {
 
 function help {
     Clear-Host
-    Write-Output "########################################################################################################################"
-    Write-Output "  ec2-manager e' uno script PowerShell che dovrebbe permettere di gestire"
-    Write-Output "  le istanze EC2 su AWS."
-    Write-Output ""
-    Write-Output "  Al momento supporta l'avvio e lo spegnimento di una istanza EC2"
-    Write-Output "  E credo che anche in futuro, questa cosa non cambierà piu' di tanto."
-    Write-Output ""
-    Write-Output "  Utilizzo:"
-    Write-Output ""
-    Write-Output "  - help: "
-    Write-Output "    Produce questo help "
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath help "
-    Write-Output ""
-    Write-Output "  - startEC2: "
-    Write-Output "    Avvia un'istanza EC2 su AWS, nell'account impostato come default "
-    Write-Output "    L'istanza viene identificata con un nome, passato come parametro. "
-    Write-Output "    Il nome dell'stanza e' riportato nel file instances.ini. In questo file "
-    Write-Output "    ad ogni nome (definito dall'utente), e' associato un instanceId."
-    Write-Output "    Per conoscere le istanze censite, vedere instanceList"
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      nome_istanza: univoco che identifica l'istanza nel file instances.ini"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath startEC2 istanzaTest2023"
-    Write-Output ""
-    Write-Output "  - stopEC2: "
-    Write-Output "    Ferma un'istanza EC2 su AWS, nell'account impostato come default "
-    Write-Output "    L'istanza viene identificata con un nome, passato come parametro. "
-    Write-Output "    Il nome dell'stanza e' riportato nel file instances.ini. In questo file "
-    Write-Output "    ad ogni nome (definito dall'utente), e' associato un instanceId."
-    Write-Output "    Per conoscere le istanze censite, vedere instanceList"
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      nome_istanza: univoco che identifica l'istanza nel file instances.ini"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath stopEC2 istanzaTest2023"
-    Write-Output ""
-    Write-Output "  - getAccountList: "
-    Write-Output "    Restituisce la lista degli account AWS disponibili, tale comando e' utile nel"
-    Write-Output "    caso si voglia cambiare account, in questo modo, si e' certi di non andare ad "
-    Write-Output "    impostare come default un account inesistente."
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath getAccountList"
-    Write-Output ""   
-    Write-Output "  - getDefaultAccount: "
-    Write-Output "    Restituisce l'attuale account impostato come default, dove lo script andra'"
-    Write-Output "    ad eseguire tutti i comandi."
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath getDefaultAccount"
-    Write-Output "" 
-    Write-Output "  - setDefaultAccount: "
-    Write-Output "    Imposta l'account di default, ovvero l'account dove lo script andra'"
-    Write-Output "    ad eseguire tutti i comandi."
-    Write-Output "    Gli account selezionabili sono quelli che restituisce getAccountList"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath setDefaultAccount SERVIZI"
-    Write-Output "" 
-    Write-Output "  - instanceList: "
-    Write-Output "    Ritorna la lista delle istanze disponibili (censite) nell'account"
-    Write-Output "    attualmente impostato come default."
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath instanceList"
-    Write-Output ""
-    Write-Output "  - instanceAdd: "
-    Write-Output "    Aggiunge un'istanza nell'account attualmente impostato come default."
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      nome_istanza: univoco che identifica l'istanza nel file instances.ini"
-    Write-Output "      id_istanza: utilizzato dallo script per gestire le istanze su AWS"    
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath instanceAdd istanza-da-aggiungere id-123434567890 "
-    Write-Output ""  
-    Write-Output "  - instanceDelete: "
-    Write-Output "    Rimuove un'istanza nell'account attualmente impostato come default."
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      nome_istanza: univoco che identifica l'istanza nel file instances.ini"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath instanceDelete istanza-da-rimuovere"
-    Write-Output ""
-    Write-Output "  - setAccessKeyId: "
-    Write-Output "    Modifica l'AWS_ACCESS_KEY_ID relativo all'account attualmente impostato come default."
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      aws_access_key_id: Stringa univoca che identifica una chiave per un utente AWS abilitato"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath setAccessKeyId AABBCCDDEEFFGGHH1234"
-    Write-Output "" 
-    Write-Output "  - setSecretAccessKey: "
-    Write-Output "    Modifica l'AWS_SECRET_ACCESS_KEY_ID relativo all'account attualmente impostato come default."
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      aws_secret_access_key: Stringa univoca che valida una chiave di un utente AWS abilitato"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath setSecretAccessKey qwertyuiop1234567890asdfghjkl1234567890"
-    Write-Output ""
-    Write-Output "  - getAWSRegions: "
-    Write-Output "    Restituisce tutte le Regioni AWS disponibili per l'account impostato come default"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath getAWSRegions"
-    Write-Output ""
-    Write-Output "  - setAWSRegion: "
-    Write-Output "    Modifica l'AWS_DEFAULT_REGION relativo all'account attualmente impostato come default."
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      aws_region: nome della regione si cui ci si vuole spostare es: eu-west-1"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath setAWSRegion eu-west-1"
-    Write-Output "" 
-    Write-Output "  - getInstanceInfo: "
-    Write-Output "    Restituisce alcune informazioni relative ad un'istanza EC2 nell'account impostato come default"
-    Write-Output "    Come parametri devono essere forniti:"
-    Write-Output "      nome_istanza: nome del'istanza di cui si vogliono le imformazioni"
-    Write-Output "    esempio: "
-    Write-Output "    $PSCommandPath getInstanceInfo istanza-che-voglio-conoscere"
-    Write-Output "" 
-    Write-Output "########################################################################################################################"
+    Write-Host "  ec2-manager e' uno script PowerShell che dovrebbe permettere di gestire"
+    Write-Host "  le istanze EC2 su AWS."
+    Write-Host " "
+    Write-Host "  Al momento supporta l'avvio e lo spegnimento di una istanza EC2"
+    Write-Host "  E credo che anche in futuro, questa cosa non cambierà piu' di tanto."
+    Write-Host " "
+    Write-Host "  Utilizzo:"
+    Write-Host " "
+    Write-Host "  - help: " -ForegroundColor Yellow
+    Write-Host "    Produce questo help "
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath help " -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Start-EC2: " -ForegroundColor Yellow
+    Write-Host "    Avvia un'istanza EC2 su AWS, nell'account impostato come default "
+    Write-Host "    L'istanza viene identificata con un nome, passato come parametro. "
+    Write-Host "    Il nome dell'stanza e' riportato nel file instances.ini. In questo file "
+    Write-Host "    ad ogni nome (definito dall'utente), e' associato un instanceId."
+    Write-Host "    Per conoscere le istanze censite, vedere instanceList"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome istanza: univoco che identifica l'istanza nel file instances.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Start-EC2 istanzaTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Stop-EC2: " -ForegroundColor Yellow
+    Write-Host "    Ferma un'istanza EC2 su AWS, nell'account impostato come default "
+    Write-Host "    L'istanza viene identificata con un nome, passato come parametro. "
+    Write-Host "    Il nome dell'stanza e' riportato nel file instances.ini. In questo file "
+    Write-Host "    ad ogni nome (definito dall'utente), e' associato un instanceId."
+    Write-Host "    Per conoscere le istanze censite, vedere instanceList"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome istanza: univoco che identifica l'istanza nel file instances.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Stop-EC2 istanzaTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Get-AccountsList: " -ForegroundColor Yellow
+    Write-Host "    Restituisce la lista degli account AWS disponibili, tale comando e' utile nel"
+    Write-Host "    caso si voglia cambiare account, in questo modo, si e' certi di non andare ad "
+    Write-Host "    impostare come default un account inesistente."
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-AccountsList" -ForegroundColor DarkGray
+    Write-Host " "   
+    Write-Host "  - Get-DefaultAccount: " -ForegroundColor Yellow
+    Write-Host "    Restituisce l'attuale account impostato come default, dove lo script andra'"
+    Write-Host "    ad eseguire tutti i comandi."
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-DefaultAccount" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Set-DefaultAccount: " -ForegroundColor Yellow
+    Write-Host "    Imposta l'account di default, ovvero l'account dove lo script andra'"
+    Write-Host "    ad eseguire tutti i comandi."
+    Write-Host "    Gli account selezionabili sono quelli che restituisce getAccountList"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Set-DefaultAccount SERVIZI" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Get-InstanceList: " -ForegroundColor Yellow
+    Write-Host "    Ritorna la lista delle istanze disponibili (censite) nell'account"
+    Write-Host "    attualmente impostato come default."
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-InstanceList" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Get-InstanceInfo: " -ForegroundColor Yellow
+    Write-Host "    Restituisce alcune informazioni relative ad un'istanza EC2 nell'account impostato come default"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome istanza: nome del'istanza di cui si vogliono le imformazioni"
+    Write-Host "    esempio: "  -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-InstanceInfo istanzaTest2023" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Add-Instance: " -ForegroundColor Yellow
+    Write-Host "    Aggiunge un'istanza nell'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome istanza: univoco che identifica l'istanza nel file instances.ini"
+    Write-Host "      id istanza: utilizzato dallo script per gestire le istanze su AWS"    
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Add-Instance istanzaTest2023 id-123434567890 " -ForegroundColor DarkGray
+    Write-Host " "  
+    Write-Host "  - Delete-Instance: " -ForegroundColor Yellow
+    Write-Host "    Rimuove un'istanza nell'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome istanza: univoco che identifica l'istanza nel file instances.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Delete-Instance istanzaTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Set-AccessKeyId: " -ForegroundColor Yellow
+    Write-Host "    Modifica l'AWS_ACCESS_KEY_ID relativo all'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      aws access key id: Stringa univoca che identifica una chiave per un utente AWS abilitato"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Set-AccessKeyId AABBCCDDEEFFGGHH1234" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Set-SecretAccessKey: " -ForegroundColor Yellow
+    Write-Host "    Modifica l'AWS_SECRET_ACCESS_KEY_ID relativo all'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      aws secret access key: Stringa univoca che valida una chiave di un utente AWS abilitato"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Set-SecretAccessKey qwertyuiop1234567890asdfghjkl1234567890" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Get-AWSRegionsList: " -ForegroundColor Yellow
+    Write-Host "    Restituisce tutte le Regioni AWS disponibili per l'account impostato come default"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-AWSRegionsList" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Set-AWSRegion: " -ForegroundColor Yellow
+    Write-Host "    Modifica l'AWS_DEFAULT_REGION relativo all'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      aws region: nome della regione si cui ci si vuole spostare es: eu-west-1"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Set-AWSRegion eu-west-1" -ForegroundColor DarkGray
+    Write-Host " " 
 }
 
 # Definisci la funzione per accendere l'istanza EC2
@@ -383,9 +392,6 @@ function testAWSConnection {
         $message = $_
         Write-Warning -Message "Opperbacco! $message"
     }
-
-
-    
 }
 
 $azione = $args[0]
@@ -394,74 +400,74 @@ $altroparametro = $args[2]
 
 switch -Wildcard ($azione)
 {
-    startEC2 { 
+    Start-EC2 { 
         Write-Output "$azione"
         $instanceId = getInstanceID -account $account -instanceName $parametro
         Write-Output "AccendiIstanzaEC2 -InstanceId $instanceId"
         AccendiIstanzaEC2 -InstanceId $InstanceId
     }
-    stopEC2 { 
+    Stop-EC2 { 
         Write-Output "$azione"
         $instanceId = getInstanceID -account $account -instanceName $parametro
         Write-Output "SpegniIstanzaEC2 -InstanceId $instanceId"
         SpegniIstanzaEC2 -InstanceId $InstanceId
     }
-    getAccountList { 
+    Get-AccountsList { 
         Write-Output "$azione"
         getAccounts; 
         Break 
     }
-    getDefaultAccount { 
+    Get-DefaultAccount { 
         Write-Output "$azione"
         getDefaultAccount; 
         Break
     }
-    setDefaultAccount { 
+    Set-DefaultAccount { 
         Write-Output "$azione"
         Write-Output $parametro
         setDefaultAccount -newDefaultAccount $parametro
         Break
     }
-    instanceList { 
+    Get-InstanceList { 
         Write-Output "$azione"
         instanceList -account $account
     }
-    instanceAdd { 
+    Add-instance { 
         Write-Output "$azione"
         Write-Output "$parametro"
         Write-Output "$altroparametro"
         instanceAdd -account $account -newInstanceName $parametro -newInstanceId $altroparametro
 
     }
-    instanceDelete { 
+    Delete-instance { 
         Write-Output "$azione"
         Write-Output "$parametro"
         Write-Output "$altroparametro"
         instanceDelete -account $account -instanceName $parametro
     }
-    getInstanceInfo{ 
+    Get-InstanceInfo{ 
         Write-Output "$azione"
         Write-Output "$parametro"
         $instanceId = getInstanceID -account $account -instanceName $parametro
         Write-Output "$instanceId"
         getInstanceInfo -account $account -instanceId $instanceId
     }
-    getAWSRegions{ 
+    Get-AWSRegionsList{ 
         Write-Output "$azione" 
         getAWSRegions
         Break
     }
-    setAWSRegion{ 
+    Set-AWSRegion{ 
         Write-Output "$azione" 
         setAWSRegion -account $account -newRegion $parametro
         Break
     } 
-    setAWSAccessKeyId{ 
+    Set-AWSAccessKeyId{ 
         Write-Output "$azione" 
         setAWSAccessKeyId -account $account -newAccessKeyId $parametro
         Break
     } 
-    setAWSSecretAccessKey{ 
+    Set-AWSSecretAccessKey{ 
         Write-Output "$azione" 
         setAWSSecretAccessKey -account $account -newSecretAccessKey $parametro
         Break
@@ -475,7 +481,7 @@ switch -Wildcard ($azione)
         info
     }
     test { 
-        Write-Output "$azione"
+        Write-Output "$azione" -ForegroundColor Yellow
         testAWSConnection
     }
     Default {

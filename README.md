@@ -47,7 +47,7 @@ Mostra a schermo l'help.
 .\ec2-manager.ps1 help
 ```
 
-#### - startEC2:
+#### - Start-EC2:
 Avvia un'istanza EC2 su AWS nell'account di "default".
 L'istanza viene identificata mediante l'utilizzo di un nome univoco, definito nel file instances.ini. 
 Tale nome è accettato come parametro (mandatorio) dallo script.
@@ -59,10 +59,10 @@ Ad ogni nome, definito dall'utente è associato l'instance id di una istanza EC2
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 startEC2 istanzaTest2023
+.\ec2-manager.ps1 Start-EC2 istanzaTest2023
 ```
 
-#### - stopEC2:
+#### - Stop-EC2:
 Ferma un'istanza EC2 su AWS nell'account di "default".
 L'istanza viene identificata mediante l'utilizzo di un nome univoco, definito nel file instances.ini. 
 Tale nome è accettato come parametro (mandatorio) dallo script.
@@ -74,10 +74,10 @@ Ad ogni nome, definito dall'utente è associato l'instance id di una istanza EC2
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 stopEC2 istanzaTest2023
+.\ec2-manager.ps1 Stop-EC2 istanzaTest2023
 ```
 
-#### - getInstanceInfo:
+#### - Get-InstanceInfo:
 Restituisce alcune informazioni su un'istanza EC2 su AWS nell'account di "default".
 L'istanza viene identificata mediante l'utilizzo di un nome univoco, definito nel file instances.ini. 
 
@@ -86,19 +86,19 @@ L'istanza viene identificata mediante l'utilizzo di un nome univoco, definito ne
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 getInstanceInfo istanzaTest2023
+.\ec2-manager.ps1 Get-InstanceInfo istanzaTest2023
 ```
 
 
-##### - instanceList
+##### - Get-InstanceList
 Ritorna la lista delle istanze disponibili (censite) nell'account attualmente impostato come default.
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 instanceList
+.\ec2-manager.ps1 Get-InstanceList
 ```
 
-#### - instanceAdd:
+#### - Add-Instance:
 Aggiunge un'istanza EC2 nell'account di "default", aggiungendo nome ed id nel file instances.ini.
 
 ##### Parametri:
@@ -107,10 +107,10 @@ Aggiunge un'istanza EC2 nell'account di "default", aggiungendo nome ed id nel fi
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 instanceAdd istanzaTest2023 id-123434567890
+.\ec2-manager.ps1 Add-Instance istanzaTest2023 id-123434567890
 ```
 
-#### - instanceDelete:
+#### - Delete-Instance:
 Rimuove un'istanza EC2 nell'account di "default", rimuovendo nome ed id dal file instances.ini.
 
 ##### Parametri:
@@ -118,28 +118,28 @@ Rimuove un'istanza EC2 nell'account di "default", rimuovendo nome ed id dal file
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 instanceDelete istanzaTest2023
+.\ec2-manager.ps1 Delete-Instance istanzaTest2023
 ```
 
-#### - getAccountList:
+#### - Get-AccountsList:
 Ritorna la lista degli account AWS disponibili, ossia quelli "censiti" nel file config.ini e di conseguenza anche nel file instances.ini.
 Comando utile per evitare di impostare come default un account inesistente sminchiando il funzionamento dello script PowerShell.
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 getAccountList
+.\ec2-manager.ps1 Get-AccountsList
 ```
 
-#### - getDefaultAccount:
+#### - Get-DefaultAccount:
 Ritorna l'account AWS attualmente impostato come default.
 Comando utile per sapere in quale account si sta lavorando.
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 getDefaultAccount
+.\ec2-manager.ps1 Get-DefaultAccount
 ```
 
-#### - setDefaultAccount:
+#### - Set-DefaultAccount:
 Imposta l'account di "default".
 
 ##### Parametri:
@@ -147,10 +147,10 @@ Imposta l'account di "default".
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 setDefaultAccount SERVIZI
+.\ec2-manager.ps1 Set-DefaultAccount SERVIZI
 ```
 
-#### - setAccessKeyId:
+#### - Set-AccessKeyId:
 Imposta l'AWS_ACCESS_KEY_ID relativo all'account attualmente impostato come default.
 
 ##### Parametri:
@@ -158,10 +158,10 @@ Imposta l'AWS_ACCESS_KEY_ID relativo all'account attualmente impostato come defa
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 setAccessKeyId AABBCCDDEEFFGGHH1234
+.\ec2-manager.ps1 Set-AccessKeyId AABBCCDDEEFFGGHH1234
 ```
 
-#### - setSecretAccessKey:
+#### - Set-SecretAccessKey:
 Imposta l'AWS_SECRET_ACCESS_KEY_ID relativo all'account attualmente impostato come default.
 
 ##### Parametri:
@@ -169,19 +169,19 @@ Imposta l'AWS_SECRET_ACCESS_KEY_ID relativo all'account attualmente impostato co
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 setSecretAccessKey qwertyuiop1234567890asdfghjkl1234567890
+.\ec2-manager.ps1 Set-SecretAccessKey qwertyuiop1234567890asdfghjkl1234567890
 ```
 
-#### - getAWSRegions:
+#### - Get-AWSRegionsList:
 Restituisce tutte le Regioni AWS disponibili per l'account impostato come default.
 Comando utile per sapere dove si sta lavorando.
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 getAWSRegions
+.\ec2-manager.ps1 Get-AWSRegionsList
 ```
 
-#### - setAWSRegion:
+#### - Set-AWSRegion:
 Imposta l'AWS_DEFAULT_REGION relativo all'account attualmente impostato come default.
 
 ##### Parametri:
@@ -189,7 +189,7 @@ Imposta l'AWS_DEFAULT_REGION relativo all'account attualmente impostato come def
 
 ##### Esempio:
 ```
-.\ec2-manager.ps1 setAWSRegion eu-west-1
+.\ec2-manager.ps1 Set-AWSRegion eu-west-1
 ```
 
 ### TO DO ###
