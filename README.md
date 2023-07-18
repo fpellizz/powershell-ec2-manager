@@ -12,6 +12,7 @@ Utilizza due moduli PowerShell:
 
 * PsIni
 * AWSPowerShell
+* PSWriteColor
 
 Tali moduli se non presenti vengono automaticamente installati a livello utente.
 
