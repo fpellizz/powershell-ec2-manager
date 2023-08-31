@@ -44,6 +44,8 @@ $region =  $config[$account]["AWS_DEFAULT_REGION"]
 $instances = Get-IniContent .\instances.ini
 #$instance_id = $instances[$account]["cameo-dev"]
 
+#carico le informazioni dal file workspaces.ini
+$workspaces = Get-IniContent .\workspaces.ini
 
 # Imposta le credenziali come variabili d'ambiente
 $env:AWS_ACCESS_KEY_ID = $access_key_id
@@ -83,14 +85,14 @@ function setDefaultAccount {
     param(
         [Parameter(Mandatory = $true)]
         [string]$newDefaultAccount
-    )
-    try {
-        
-        $config["DEFAULT"]["account"] = $newDefaultAccount
-        $config | Out-IniFile -Force -FilePath .\config.ini
-    }
-    catch {
-        $message = $_
+        )
+        try {
+            
+            $config["DEFAULT"]["account"] = $newDefaultAccount
+            $config | Out-IniFile -Force -FilePath .\config.ini
+        }
+        catch {
+            $message = $_
         Write-Warning -Message "Opperbacco! $message"
     }
 }
@@ -102,10 +104,10 @@ function instanceAdd {
         [string]$account,
         [string]$newInstanceName,
         [string]$newInstanceId
-    )
-    try {
-        
-        $instances[$account][$newInstanceName] = $newInstanceId
+        )
+        try {
+            
+            $instances[$account][$newInstanceName] = $newInstanceId
         $instances | Out-IniFile -Force -FilePath .\instances.ini
     }
     catch {
@@ -120,17 +122,17 @@ function instanceDelete {
         [Parameter(Mandatory = $true)]
         [string]$account,
         [string]$instanceName
-    )
-    try {
-        
-        $instances.$account.Remove($instanceName)
-        $instances | Out-IniFile -Force -FilePath .\instances.ini
+        )
+        try {
+            
+            $instances.$account.Remove($instanceName)
+            $instances | Out-IniFile -Force -FilePath .\instances.ini
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
     }
-    catch {
-        $message = $_
-        Write-Warning -Message "Opperbacco! $message"
-    }
-}
 
 function getAccounts {
     Clear-Host
@@ -148,22 +150,26 @@ function getInstanceID {
         [Parameter(Mandatory = $true)]
         [string]$account,
         [string]$instanceName
-    )
-    
-    $instances[$account][$instanceName]
-}
+        )
+        
+        $instances[$account][$instanceName]
+    }
 
-function info {
-    Clear-Host
-    Write-Output "########################################################################################################################"
-    Write-Output "  ec2-manager e' uno script PowerShell che dovrebbe permettere di gestire"
-    Write-Output "  le istanze EC2 su AWS."
-    Write-Output ""
-    Write-Output "  Per gestire intendo accendere e spegnere, al momento."
-    Write-Output "  E credo anche per il futuro..."
-    Write-Output ""
-    Write-Output "  Realizzato e manutenuto da:"
-    Write-Output ""
+    
+    #######################################################################
+    #ALTRO    
+    
+    function info {
+        Clear-Host
+        Write-Output "########################################################################################################################"
+        Write-Output "  ec2-manager e' uno script PowerShell che dovrebbe permettere di gestire"
+        Write-Output "  le istanze EC2 su AWS."
+        Write-Output ""
+        Write-Output "  Per gestire intendo accendere e spegnere, al momento."
+        Write-Output "  E credo anche per il futuro..."
+        Write-Output ""
+        Write-Output "  Realizzato e manutenuto da:"
+        Write-Output ""
     Write-Output "     - Fabio Pellizzaro (mail: fabio.pellizzaro@decisyon.com)"
     Write-Output ""
     Write-Output "########################################################################################################################"
@@ -190,7 +196,7 @@ function help {
     Write-Host "    L'istanza viene identificata con un nome, passato come parametro. "
     Write-Host "    Il nome dell'stanza e' riportato nel file instances.ini. In questo file "
     Write-Host "    ad ogni nome (definito dall'utente), e' associato un instanceId."
-    Write-Host "    Per conoscere le istanze censite, vedere instanceList"
+    Write-Host "    Per conoscere le istanze censite, vedere Get-InstanceList"
     Write-Host "    Parametri:" -ForegroundColor Cyan
     Write-Host "      nome istanza: univoco che identifica l'istanza nel file instances.ini"
     Write-Host "    esempio: " -ForegroundColor DarkGray
@@ -255,6 +261,74 @@ function help {
     Write-Host "    esempio: " -ForegroundColor DarkGray
     Write-Host "    $PSCommandPath Delete-Instance istanzaTest2023" -ForegroundColor DarkGray
     Write-Host " "
+    Write-Host "  - Start-Workspace: " -ForegroundColor Yellow
+    Write-Host "    Avvia un Workspace su AWS, nell'account impostato come default "
+    Write-Host "    Il workspace viene identificata con un nome, passato come parametro. "
+    Write-Host "    Il nome del Workspace e' riportato nel file workspaces.ini. In questo file "
+    Write-Host "    ad ogni nome (definito dall'utente), e' associato un workspaceId."
+    Write-Host "    Per conoscere i Workspaces censiti, vedere Get-WorkspaceList"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: univoco che identifica il workspace nel file workspaces.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Start-Workspace workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Stop-Workspace: " -ForegroundColor Yellow
+    Write-Host "    Ferma un Workspace su AWS, nell'account impostato come default "
+    Write-Host "    Il Workspace viene identificato con un nome, passato come parametro. "
+    Write-Host "    Il nome del Workspace e' riportato nel file workspaces.ini. In questo file "
+    Write-Host "    ad ogni nome (definito dall'utente), e' associato un workspaceId."
+    Write-Host "    Per conoscere i Workspace censiti, vedere Get-WorkspaceList"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: univoco che identifica il workspace nel file workspaces.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Stop-Workspace workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Reboot-Workspace: " -ForegroundColor Yellow
+    Write-Host "    Riavvia un Workspace su AWS, nell'account impostato come default "
+    Write-Host "    Il Workspace viene identificato con un nome, passato come parametro. "
+    Write-Host "    Il nome del Workspace e' riportato nel file workspaces.ini. In questo file "
+    Write-Host "    ad ogni nome (definito dall'utente), e' associato un workspaceId."
+    Write-Host "    Per conoscere i Workspace censiti, vedere Get-WorkspaceList"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: univoco che identifica il workspace nel file workspaces.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Reboot-Workspace workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Get-WorkspaceList: " -ForegroundColor Yellow
+    Write-Host "    Ritorna la lista dei Workspaces disponibili (censite) nell'account"
+    Write-Host "    attualmente impostato come default."
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-WorkspaceList" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Get-WorkspaceInfo: " -ForegroundColor Yellow
+    Write-Host "    Restituisce alcune informazioni relative ad un Workspace nell'account impostato come default"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: nome del Workspace di cui si vogliono le imformazioni"
+    Write-Host "    esempio: "  -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-WorkspaceInfo workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " "
+    Write-Host "  - Get-WorkspaceState: " -ForegroundColor Yellow
+    Write-Host "    Restituisce lo stato si un Workspace (AVAILABLE, STOPPED...) nell'account impostato come default"
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: nome del Workspace di cui si vogliono le imformazioni"
+    Write-Host "    esempio: "  -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Get-WorkspaceState workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " " 
+    Write-Host "  - Add-Workspace: " -ForegroundColor Yellow
+    Write-Host "    Aggiunge un Workspace nel file workspaces.ini nella sezione relativa all'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: univoco che identifica il workspace nel file workspaces.ini"
+    Write-Host "      id workspace: utilizzato dallo script per gestire i workspaces su AWS"    
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Add-Workspace workspaceTest2023 ws-123434567890 " -ForegroundColor DarkGray
+    Write-Host " "  
+    Write-Host "  - Delete-Workspace: " -ForegroundColor Yellow
+    Write-Host "    Rimuove un Workspace nel file workspaces.ini nella sezione relativa all'account attualmente impostato come default."
+    Write-Host "    Parametri:" -ForegroundColor Cyan
+    Write-Host "      nome workspace: univoco che identifica il workspace nel file workspaces.ini"
+    Write-Host "    esempio: " -ForegroundColor DarkGray
+    Write-Host "    $PSCommandPath Delete-Workspace workspaceTest2023" -ForegroundColor DarkGray
+    Write-Host " "      
     Write-Host "  - Set-AccessKeyId: " -ForegroundColor Yellow
     Write-Host "    Modifica l'AWS_ACCESS_KEY_ID relativo all'account attualmente impostato come default."
     Write-Host "    Parametri:" -ForegroundColor Cyan
@@ -288,33 +362,33 @@ function AccendiIstanzaEC2 {
     param(
         [Parameter(Mandatory = $true)]
         [string]$InstanceId
-    )
-    
-    Start-EC2Instance -Region $region -InstanceId $InstanceId
-}
-
-# Definisci la funzione per spegnere l'istanza EC2
-function SpegniIstanzaEC2 {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$InstanceId
-    )
-    
-    Stop-EC2Instance -Region $region -InstanceId $InstanceId
-}
-
-function getAWSRegions {
-    try {
-        Get-AWSRegion
+        )
+        
+        Start-EC2Instance -Region $region -InstanceId $InstanceId
     }
-    catch {
-        $message = $_
-        Write-Warning -Message "Opperbacco! $message"
-    }
+    
+    # Definisci la funzione per spegnere l'istanza EC2
+    function SpegniIstanzaEC2 {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$InstanceId
+            )
+            
+            Stop-EC2Instance -Region $region -InstanceId $InstanceId
+        }
+        
+        function getAWSRegions {
+            try {
+                Get-AWSRegion
+            }
+            catch {
+                $message = $_
+                Write-Warning -Message "Opperbacco! $message"
+            }
+            
+        }
 
-}
-
-
+        
 function setAWSRegion {
     param(
         [Parameter(Mandatory = $true)]
@@ -337,9 +411,9 @@ function setAWSAccessKeyId {
         [Parameter(Mandatory = $true)]
         [string]$account,
         [string]$newAccessKeyId
-    )
-    try {
-        
+        )
+        try {
+            
         $config[$account]["AWS_ACCESS_KEY_ID"] = $newAccessKeyId
         $config | Out-IniFile -Force -FilePath .\config.ini
     }
@@ -354,31 +428,31 @@ function setAWSSecretAccessKey {
         [Parameter(Mandatory = $true)]
         [string]$account,
         [string]$newSecretAccessKey
-    )
-    try {
-        
-        $config[$account]["AWS_SECRET_ACCESS_KEY"] = $newSecretAccessKey
-        $config | Out-IniFile -Force -FilePath .\config.ini
+        )
+        try {
+            
+            $config[$account]["AWS_SECRET_ACCESS_KEY"] = $newSecretAccessKey
+            $config | Out-IniFile -Force -FilePath .\config.ini
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
     }
-    catch {
-        $message = $_
-        Write-Warning -Message "Opperbacco! $message"
-    }
-}
-
-function getInstanceInfo {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string]$account,
-        [string]$instanceId
-    )
-    Write-Output "AWS Account: $account"
-    Write-Output "AWS Region: $region"
-    try {
-        (Get-EC2Instance -Region $region -instanceId $instanceId).Instances
-    }
-    catch {
-        $message = $_
+    
+    function getInstanceInfo {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$instanceId
+            )
+            Write-Output "AWS Account: $account"
+            Write-Output "AWS Region: $region"
+            try {
+                (Get-EC2Instance -Region $region -instanceId $instanceId).Instances
+            }
+            catch {
+                $message = $_
         Write-Warning -Message "Opperbacco! $message"
     }
 }
@@ -393,6 +467,208 @@ function testAWSConnection {
         Write-Warning -Message "Opperbacco! $message"
     }
 }
+
+#######################################################################
+#WORKSPACES    
+
+function workspaceAdd {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$account,
+        [string]$newWorkspaceName,
+        [string]$newWorkspaceId
+        )
+        try {
+            
+            $workspaces[$account][$newWorkspaceName] = $newWorkspaceId
+            $workspaces | Out-IniFile -Force -FilePath .\workspaces.ini
+    }
+    catch {
+        $message = $_
+        Write-Warning -Message "Opperbacco! $message"
+    }
+}
+
+function workspaceDelete {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$account,
+        [string]$workspaceName
+        )
+        try {
+            
+            $workspaces.$account.Remove($workspaceName)
+            $workspaces | Out-IniFile -Force -FilePath .\workspaces.ini
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
+
+
+    function workspacesList {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account
+        )
+        Clear-Host
+        Write-Output "########################################################################################################################"
+        Write-Output "I Workspaces attualmente censiti sono: "
+        Write-Output ""
+        Write-Output $workspaces[$account].Keys
+        Write-Output ""
+        Write-Output "Se nell'elenco non e' presente il workspace che stai cercando inserisicla nel file `".\workspaces.ini`" nel gruppo [$account] "
+        Write-Output "########################################################################################################################"
+    }
+
+    function getWorkspaceID {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+            )
+            
+            $workspaces[$account][$workspaceName]
+        }
+
+    function getWorkspaceInfo {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+        )
+        Write-Output "AWS Account: $account"
+        Write-Output "AWS Region: $region"
+
+        try {
+            $workspaceId=(getWorkspaceID -account $account -workspaceName $workspaceName)
+            Write-Output "$workspaceId"
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+
+        try {
+            #Get-WKSWorkspacesConnectionStatus -WorkspaceId $workspaceId -Region $region
+            Get-WKSWorkspace -Region $region -WorkspaceId $workspaceId
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
+
+
+    function getWorkspaceState {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+        )
+        Write-Output "AWS Account: $account"
+        Write-Output "AWS Region: $region"
+
+        try {
+            $workspaceId=(getWorkspaceID -account $account -workspaceName $workspaceName)
+            Write-Output "$workspaceId"
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+
+        try {
+            #Get-WKSWorkspacesConnectionStatus -WorkspaceId $workspaceId -Region $region
+            (Get-WKSWorkspace -Region $region -WorkspaceId $workspaceId).State
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
+
+    function rebootWorkspace {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+        )
+        Write-Output "AWS Account: $account"
+        Write-Output "AWS Region: $region"
+
+        try {
+            $workspaceId=(getWorkspaceID -account $account -workspaceName $workspaceName)
+            Write-Output "$workspaceId"
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+
+        try {
+            Restart-WKSWorkspace -Region $region -WorkspaceId $workspaceId
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
+
+    function startWorkspace {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+        )
+        Write-Output "AWS Account: $account"
+        Write-Output "AWS Region: $region"
+
+        try {
+            $workspaceId=(getWorkspaceID -account $account -workspaceName $workspaceName)
+            Write-Output "$workspaceId"
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+
+        try {
+            Start-WKSWorkspace -Region $region -WorkspaceId $workspaceId
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
+
+    function stopWorkspace {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$account,
+            [string]$workspaceName
+        )
+        Write-Output "AWS Account: $account"
+        Write-Output "AWS Region: $region"
+
+        try {
+            $workspaceId=(getWorkspaceID -account $account -workspaceName $workspaceName)
+            Write-Output "$workspaceId"
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+
+        try {
+            Stop-WKSWorkspace -Region $region -WorkspaceId $workspaceId
+        }
+        catch {
+            $message = $_
+            Write-Warning -Message "Opperbacco! $message"
+        }
+    }
 
 $azione = $args[0]
 $parametro = $args[1]
@@ -484,6 +760,47 @@ switch -Wildcard ($azione)
         Write-Output "$azione" -ForegroundColor Yellow
         testAWSConnection
     }
+    Get-WorkspacesList { 
+        Write-Output "$azione"
+        workspacesList -account $account
+    }
+    Add-Workspace { 
+        Write-Output "$azione"
+        Write-Output "$parametro"
+        Write-Output "$altroparametro"
+        workspaceAdd -account $account -newWorkspaceName $parametro -newWorkspaceId $altroparametro
+    }
+    Delete-Workspace { 
+        Write-Output "$azione"
+        Write-Output "$parametro"
+        Write-Output "$altroparametro"
+        workspaceDelete -account $account -workspaceName $parametro
+    }
+    Get-WorkspaceInfo { 
+        $default_account=$config["DEFAULT"]["account"]
+        Write-Output "$azione"
+        getWorkspaceInfo -account $default_account -workspace $parametro 
+    }
+    Get-WorkspaceState { 
+        $default_account=$config["DEFAULT"]["account"]
+        Write-Output "$azione"
+        getWorkspaceState -account $default_account -workspace $parametro 
+    }
+    Start-Workspace { 
+        $default_account=$config["DEFAULT"]["account"]
+        Write-Output "$azione"
+        startWorkspace -account $default_account -workspace $parametro 
+    }
+    Stop-Workspace { 
+        $default_account=$config["DEFAULT"]["account"]
+        Write-Output "$azione"
+        stopWorkspace -account $default_account -workspace $parametro 
+    }
+    Reboot-Workspace { 
+        $default_account=$config["DEFAULT"]["account"]
+        Write-Output "$azione"
+        rebootWorkspace -account $default_account -workspace $parametro 
+    }
     Default {
         Write-Output ""
         Write-Output "Please give me some info about what the hell you want to do"
@@ -492,3 +809,4 @@ switch -Wildcard ($azione)
         Write-Output ""        
     }
 }
+
